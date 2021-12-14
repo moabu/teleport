@@ -15,52 +15,49 @@
 package handler
 
 import (
+	"context"
+	"sort"
+
 	api "github.com/gravitational/teleport/lib/teleterm/api/protogen/golang/v1"
 	"github.com/gravitational/teleport/lib/teleterm/daemon"
+
 	"github.com/gravitational/trace"
 )
 
-func New(cfg Config) (*Handler, error) {
-	if err := cfg.CheckAndSetDefaults(); err != nil {
+func (s *Handler) ListKubes(ctx context.Context, req *api.ListServersRequest) (*api.ListServersResponse, error) {
+	kubes, err := s.DaemonService.ListKubes(ctx, req.ClusterUri)
+	if err != nil {
 		return nil, trace.Wrap(err)
 	}
 
-	return &Handler{
-		cfg,
-	}, nil
-}
-
-// Config is the terminal service
-type Config struct {
-	// DaemonService is the instance of daemon service
-	DaemonService *daemon.Service
-}
-
-func (c *Config) CheckAndSetDefaults() error {
-	if c.DaemonService == nil {
-		return trace.BadParameter("missing Daemon Service")
+	response := &api.ListServersResponse{}
+	for _, k := range kubes {
+		response.Servers = append(response.Servers, newAPIKube(k))
 	}
 
-	return nil
+	return response, nil
 }
 
-// Handler implements teleterm api service
-type Handler struct {
-	// Config is the service config
-	Config
-}
+func newAPIKube(kube daemon.Kube) *api.Server {
+	apiLabels := APILabels{}
+	for name, value := range kube.StaticLabels {
+		apiLabels = append(apiLabels, &api.Label{
+			Name:  name,
+			Value: value,
+		})
+	}
 
-// sortedLabels is a sort wrapper that sorts labels by name
-type APILabels []*api.Label
+	for name, cmd := range kube.DynamicLabels {
+		apiLabels = append(apiLabels, &api.Label{
+			Name:  name,
+			Value: cmd.GetResult(),
+		})
+	}
 
-func (s APILabels) Len() int {
-	return len(s)
-}
+	sort.Sort(apiLabels)
 
-func (s APILabels) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
-
-func (s APILabels) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
+	return &api.Server{
+		Uri:    kube.URI,
+		Labels: apiLabels,
+	}
 }
