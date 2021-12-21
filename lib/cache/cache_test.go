@@ -2166,7 +2166,7 @@ func TestDatabases(t *testing.T) {
 func TestCache_Backoff(t *testing.T) {
 	clock := clockwork.NewFakeClock()
 	p := newTestPack(t, func(c Config) Config {
-		c.MaxRetryPeriod = defaults.MaxWatcherBackoff
+		c.MaxRetryPeriod = time.Millisecond * 500
 		c.Clock = clock
 		return ForNode(c)
 	})
@@ -2194,7 +2194,7 @@ func TestCache_Backoff(t *testing.T) {
 			require.LessOrEqual(t, duration, stepMax)
 
 			// add some extra to the duration to ensure the retry occurs
-			clock.Advance(duration * 3)
+			clock.Advance(stepMax * 2)
 		case <-time.After(time.Minute):
 			t.Fatalf("timeout waiting for event")
 		}
