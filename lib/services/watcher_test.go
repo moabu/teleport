@@ -64,7 +64,7 @@ func TestResourceWatcher_Backoff(t *testing.T) {
 		ResourceWatcherConfig: services.ResourceWatcherConfig{
 			Component:      "test",
 			Clock:          clock,
-			MaxRetryPeriod: defaults.MaxWatcherBackoff,
+			MaxRetryPeriod: time.Millisecond * 500,
 			Client:         &errorWatcher{},
 		},
 		ProxyGetter: &nopProxyGetter{},
@@ -83,7 +83,7 @@ func TestResourceWatcher_Backoff(t *testing.T) {
 			require.GreaterOrEqual(t, duration, stepMin)
 			require.LessOrEqual(t, duration, stepMax)
 			// add some extra to the duration to ensure the retry occurs
-			clock.Advance(duration * 3)
+			clock.Advance(stepMax * 2)
 		case <-time.After(time.Minute):
 			t.Fatalf("timeout waiting for reset")
 		}
