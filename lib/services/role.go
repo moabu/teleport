@@ -1691,6 +1691,17 @@ func (set RoleSet) CanPortForward() bool {
 	return false
 }
 
+// RecordDesktopSession returns true if a role in the role set has enabled
+// desktop session recoring.
+func (set RoleSet) RecordDesktopSession() bool {
+	for _, role := range set {
+		if types.BoolDefaultTrue(role.GetOptions().RecordDesktopSession) {
+			return true
+		}
+	}
+	return false
+}
+
 // MaybeCanReviewRequests attempts to guess if this RoleSet belongs
 // to a user who should be submitting access reviews.  Because not all rolesets
 // are derived from statically assigned roles, this may return false positives.
