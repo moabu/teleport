@@ -539,12 +539,13 @@ func TestTeleportProcess_reconnectToAuth(t *testing.T) {
 	clock := clockwork.NewFakeClock()
 	// Create and configure a default Teleport configuration.
 	cfg := MakeDefaultConfig()
-	cfg.AuthServers = []utils.NetAddr{{AddrNetwork: "tcp", Addr: "127.0.0.1:0"}}
+	cfg.AuthServers = []utils.NetAddr{{AddrNetwork: "tcp", Addr: "198.18.0.254:1234"}}
 	cfg.Clock = clock
 	cfg.DataDir = t.TempDir()
 	cfg.Auth.Enabled = false
 	cfg.Proxy.Enabled = false
 	cfg.SSH.Enabled = true
+	cfg.MaxRetryPeriod = time.Millisecond * 500
 	process, err := NewTeleport(cfg)
 	require.NoError(t, err)
 
@@ -568,7 +569,7 @@ func TestTeleportProcess_reconnectToAuth(t *testing.T) {
 			require.GreaterOrEqual(t, duration, stepMin)
 			require.LessOrEqual(t, duration, stepMax)
 			// add some extra to the duration to ensure the retry occurs
-			clock.Advance(duration * 3)
+			clock.Advance(stepMax * 2)
 		case <-time.After(time.Minute):
 			t.Fatalf("timeout waiting for failure")
 		}
