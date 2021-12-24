@@ -963,3 +963,10 @@ update-webassets:
 .PHONY: dronegen
 dronegen:
 	go run ./dronegen
+
+# backport auto-backports changes from one branch to other branches. 
+# The target will create a pull request on Github with the credentials 
+# stored in ~/.config/gh/hosts.yaml.
+.PHONY: backport
+backport:
+	go run ./build.assets/backport --to $(to) --from $(from)
