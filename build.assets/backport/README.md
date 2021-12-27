@@ -9,6 +9,8 @@ An automatic backport bot is a tool to use for creating backports.
   
 ## Use
 
+This tool is intended to be used when then changes on a branch are approved to be merged into the `master` branch. The developer should **only** create backports on branches they have created unless otherwise asked. 
+
 ### Flags 
 
 | Name     | Description | Required | 
