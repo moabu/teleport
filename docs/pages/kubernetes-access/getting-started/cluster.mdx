@@ -11,6 +11,12 @@ Let's deploy Teleport in a Kubernetes cluster with SSO and Audit logs:
 - Set up Single Sign-On (SSO).
 - Capture and playback Kubernetes commands.
 
+While completing this guide, you will deploy a single Teleport container running the Auth Service and Proxy Service on your Kubernetes cluster, including a `LoadBalancer` that exposes these services to traffic outside the cluster.
+
+<Admonition type="tip" title="Have an existing Teleport cluster?">
+If you are already running Teleport on another platform, you can use your existing Teleport deployment to access your Kubernetes cluster. [Follow our guide](./agent.mdx) to connect your Kubernetes cluster to Teleport.
+</Admonition>
+
 ## Follow along with our video guide
 
 <iframe
